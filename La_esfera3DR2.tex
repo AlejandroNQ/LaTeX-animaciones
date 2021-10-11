@@ -29,7 +29,7 @@
 %	 la \j solo necesitan una pasada
 
 \begin{document}
-\pgfmathtruncatemacro\N{5}			% num. de fotogramas
+\pgfmathtruncatemacro\N{30}			% num. de fotogramas
 \pgfmathtruncatemacro\p{8}			% paso (para los paralelos y meridianos)
 \begin{animateinline}[controls,loop]{\N}	% del paquete animate: crea \N fotogramas
 	\multiframe{\N}{n=0+1}{                 %     y a cada una le asigna un indice \n que va de 0 a \N (de 1 en 1)
