@@ -1,0 +1,85 @@
+% ╔══════════════════════════════════════════╗
+% ║ 		 Pr. estereografica S^2 a R^2        ║
+% ║                                          ║
+% ║ AUTOR: Alejandro Navarro	               ║
+% ║ FECHA: octubre 2021							         ║
+% ╚══════════════════════════════════════════╝
+\documentclass[]{standalone}
+\usepackage{animate}
+\usepackage{ifthen}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfmath}
+\usetikzlibrary{positioning, math}
+
+\pgfplotsset{compat=1.18}
+
+% La idea basica de la animacion es que calculo donde empieza cada punto p_0 = (x_0, y_0, z_0) (en la esfera) y
+%	 donde quiero que termine estando p_1 = (x_1, y_1, z_1) (en el plano) (de hecho, y_1 es siempre 0); y para cada
+%  fotograma lo represento en un punto intermedio
+%
+%				p_0 =	(x_t, y_t, z_t) =	(x_0*(1-\t) + x_1*\t, y_0*(1-\t) + y_1*\t, z_0*(1-\t) + z_1*\t)
+%
+%	 de forma que para \t = 0, p_t = p_0 y para \t = 1, p_t = p_1 e interpola ambos puntos de forma lineal
+%	 y continua.
+%
+%	Ademas, para representar la superficie como una malla en vez de puntos sueltos, dibujo segmentos entre 
+%	 puntos adyacentes y lo hago en dos pasadas, una para cada parametro (\i y \j). y asi creo paralelos
+%	 y meridianos. Sin embargo, las curvas (circunferencias sobre las esfera) van parametrizadas tan solo 
+%	 la \j solo necesitan una pasada
+
+\begin{document}
+\pgfmathtruncatemacro\N{5}			% num. de fotogramas
+\pgfmathtruncatemacro\p{8}			% paso (para los paralelos y meridianos)
+\begin{animateinline}[controls,loop]{\N}	% del paquete animate: crea \N fotogramas
+	\multiframe{\N}{n=0+1}{                 %     y a cada una le asigna un indice \n que va de 0 a \N (de 1 en 1)
+		\pgfmathsetmacro\t{\n/(\N-1)}         %     mapea el intervalo [0, \N] a [0, 1] creando \t
+		\begin{tikzpicture}[
+				declare function = {
+				esfx(\i, \j) = cos(\i)*cos(\j);			% \		 Son las coordenadas (x, y, z) de una carta con la
+				esfz(\i, \j) = cos(\i)*sin(\j);     % | ->  parametrizacion geografica de la esfera tomando
+				esfy(\i, \j) = sin(\i);             % /			los angulos \i y \j
+				esix(\i, \j) = cos(\i+\p)*cos(\j);  % \		 Por algun motivo no funciona bien cuando llamo a una 
+				esiz(\i, \j) = cos(\i+\p)*sin(\j);  % | 		funcion metiendole como argumento una expresion que
+				esiy(\i, \j) = sin(\i+\p);          % | -> 	tiene que evaluar (eg.: esfz(\i, \j + \p)). Por eso
+				esjx(\i, \j) = cos(\i)*cos(\j+\p);  % |			he creado una version de cada funcion equivalente a
+				esjz(\i, \j) = cos(\i)*sin(\j+\p);  % |		  evaluar esf_() en (\i+\p, \j) y (\i, \j+\p) respesc.
+				esjy(\i, \j) = sin(\i);             % /
+				proX(\i, \j) = esfx(\i, \j)/(esfy(\i, \j)+1);	% Son las coordenadas (x, z) (la y es siempre 0)
+				proZ(\i, \j) = esfz(\i, \j)/(esfy(\i, \j)+1); %	 de la proyeccion estereografica para cada punto
+				priX(\i, \j) = esix(\i, \j)/(esiy(\i, \j)+1); %	 con coordenadas esfericas (\i, \j). Y, de nuevo,
+				priZ(\i, \j) = esiz(\i, \j)/(esiy(\i, \j)+1); %	 hay tres versiones de cada componente porque
+				prjX(\i, \j) = esjx(\i, \j)/(esjy(\i, \j)+1); %	 la redundancia en el codigo es una (mala) solucion
+				prjZ(\i, \j) = esjz(\i, \j)/(esjy(\i, \j)+1); %	 cuando la sintaxis se porta mal
+			}, 
+			very thin
+		]
+			\draw[thin] (-1.2, 0, 0) -- ( 1.2, 0, 0);	% eje X
+			\draw[thin] ( 0,-1.2, 0) -- ( 0, 1.2, 0);	% eje Y
+			\draw[thin] ( 0, 0,-1.2) -- ( 0, 0, 1.2);	% eje Z
+			\begin{scope}[]
+				\clip (-2.2, -2.2) rectangle (2.2, 2.2);	%recorta todo lo que se salga del papel
+				\foreach \j in {4, 12, ..., 360}{     %bucles for para los angulos de la esfera. (azimutal)
+					\foreach \i in {-88, -80, ..., 90}{	%bucles for para los angulos de la esfera. (colatitud)
+						\draw[gray, ultra thin] ({esfx(\i,\j)*(1-\t)+proX(\i, \j)*\t}, {esfy(\i,\j)*(1-\t)+0*\t}, {esfz(\i,\j)*(1-\t))+proZ(\i, \j)*\t}) -- ({esix(\i,\j)*(1-\t)+priX(\i, \j)*\t}, {esiy(\i,\j)*(1-\t)+0*\t}, {esiz(\i,\j)*(1-\t))+priZ(\i, \j)*\t});	% meridianos
+						\draw[gray, ultra thin] ({esfx(\i,\j)*(1-\t)+proX(\i, \j)*\t}, {esfy(\i,\j)*(1-\t)+0*\t}, {esfz(\i,\j)*(1-\t))+proZ(\i, \j)*\t}) -- ({esjx(\i,\j)*(1-\t)+prjX(\i, \j)*\t}, {esjy(\i,\j)*(1-\t)+0*\t}, {esjz(\i,\j)*(1-\t))+prjZ(\i, \j)*\t});	% paralelos
+					}
+					% circulos oblicuos
+					% como las funciones de la proyeccion que he implementado en las lineas 48-53 son, en realidad, la composicion de la proyecion con la carta, me ha sido mas comodo implementar la proyeccion "a lo bruto"
+					% las formulas son P(x, y, z) = (x/(y+1), 0, z/(y+1)).
+					\draw[magenta] ({-sqrt(2)/2*cos(\j)*(1-\t)-sqrt(2)/2*cos(\j)/(sqrt(2)/2*cos(\j)+1)*\t}, {sqrt(2)/2*cos(\j)*(1-\t)}, {sin(\j)*(1-\t)+sin(\j)/(sqrt(2)/2*cos(\j)+1)*\t}) -- ({-sqrt(2)/2*cos((\j+\p))*(1-\t)-sqrt(2)/2*cos((\j+\p))/(sqrt(2)/2*cos((\j+\p))+1)*\t}, {sqrt(2)/2*cos((\j+\p))*(1-\t)}, {sin((\j+\p))*(1-\t)+sin((\j+\p))/(sqrt(2)/2*cos((\j+\p))+1)*\t});
+					\draw[magenta] ({-1/2*(cos(\j)-1)*(1-\t)-1/2*(cos(\j)-1)/(1/2*(cos(\j)+1)+1)*\t}, {1/2*(cos(\j)+1)*(1-\t)}, {1/2*sin(\j)*(1-\t)+1/2*sin(\j)/(1/2*(cos(\j)+1)+1)*\t}) -- ({-1/2*(cos((\j+\p))-1)*(1-\t)-1/2*(cos((\j+\p))-1)/(1/2*(cos((\j+\p))+1)+1)*\t}, {1/2*(cos((\j+\p))+1)*(1-\t)}, {1/2*sin((\j+\p))*(1-\t)+1/2*sin((\j+\p))/(1/2*(cos((\j+\p))+1)+1)*\t});
+					\ifthenelse{\j < 355}{
+						% los circulos que pasan por el polo sur me obligan a considerar el caso especial ya que cuando \j=0=360 se termina dividiendo por 0 (o por un numero proximo a 0) y da problemas.
+						%oblicua polo sur
+						\draw[magenta] ({1/2*(cos(\j)-1)*(1-\t)+1/2*(cos(\j)-1)/(-1/2*(cos(\j)+1)+1)*\t}, {-1/2*(cos(\j)+1)*(1-\t)}, {1/2*sin(\j)*(1-\t)+1/2*sin(\j)/(-1/2*(cos(\j)+1)+1)*\t}) -- ({1/2*(cos((\j+\p))-1)*(1-\t)+1/2*(cos((\j+\p))-1)/(-1/2*(cos((\j+\p))+1)+1)*\t}, {-1/2*(cos((\j+\p))+1)*(1-\t)}, {1/2*sin((\j+\p))*(1-\t)+1/2*sin((\j+\p))/(-1/2*(cos((\j+\p))+1)+1)*\t});
+						\draw[red] (0, {-cos(\j)*(1-\t)}, {sin(\j)*(1-\t)+sin(\j)/(-cos(\j)+1)*\t}) -- (0, {-cos((\j+\p))*(1-\t)}, {sin((\j+\p))*(1-\t)+sin((\j+\p))/(-cos((\j+\p))+1)*\t}); %meridiano ppal
+						\draw[blue] ({sin(\j)*(1-\t)+sin(\j)/(-cos(\j)+1)*\t}, {-cos(\j)*(1-\t)}, 0) -- ({sin((\j+\p))*(1-\t)+sin((\j+\p))/(-cos((\j+\p))+1)*\t}, {-cos((\j+\p))*(1-\t)}, 0); %meridiano ppal
+					}{}
+					\draw[green] ({esfx(0, \j)}, {esfy(0, \j)} ,{esfz(0, \j)}) -- ({esjx(0, \j)}, {esjy(0, \j)} ,{esjz(0, \j)});	%ecuador
+				}
+			\end{scope}
+		\end{tikzpicture}
+	}
+\end{animateinline}
+\end{document}	
