@@ -35,7 +35,7 @@
 	\multiframe{\N}{n=0+1}{                 %     y a cada una le asigna un indice \n que va de 0 a \N (de 1 en 1)
 		\pgfmathsetmacro\t{\n/(\N-1)}         %     mapea el intervalo [0, \N] a [0, 1] creando \t
 		\begin{tikzpicture}[
-				declare function = {
+			declare function = {
 				esfx(\i, \j) = cos(\i)*cos(\j);			% \		 Son las coordenadas (x, y, z) de una carta con la
 				esfz(\i, \j) = cos(\i)*sin(\j);     % | ->  parametrizacion geografica de la esfera tomando
 				esfy(\i, \j) = sin(\i);             % /			los angulos \i y \j
