@@ -1,0 +1,102 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{xcolor}
+
+\begin{document}
+	\[
+		%MATRIZ
+		M=M_\mathcal{B}(f)=
+		\left(	\color{red}
+			\begin{array}{c|c}
+				 * & 0 \\ \hline
+				 * & %
+				\color{blue}
+				\begin{array}{c c c|c}
+					0 & \cdots & 0 & -a_0 \\ \cline{1-3}
+						&        &   & -a_1 \\
+						&Id_{m-1}&   & \vdots \\
+						&        &   & -a_{m-1}
+				\end{array} 
+			\end{array}
+		\right)
+		%LLAVES LATERALES
+		\begin{array}{@{\kern-\nulldelimiterspace}l@{}}
+		\left.
+			\begin{array}{@{}c@{}}
+				\vphantom{0}
+			\end{array}
+		\right\}n-m \\
+		\left.
+			\begin{array}{@{}c@{}}
+				\vphantom{-a_0} \\ 
+				\vphantom{-a_1} \\
+				\vphantom{\vdots} \\
+				\vphantom{-a_{m-1}}
+			\end{array}
+		\right\}
+		m
+		\end{array}
+	\]
+
+
+
+
+\hfill
+
+
+
+
+	\[
+		%ETIQUETA (n-m+1)
+		\color{green}
+		\begin{array}{c}
+				\vphantom{*}
+				n-m+1 \rightarrow
+				\vphantom{-a_1}  \\
+				\vphantom{\vdots}  \\
+				\vphantom{-a_{m-1}}  
+		\end{array}
+		%MATRIZ
+		\left(
+			\color{red}
+			\begin{array}{c|c}
+				* & 0 \\ \hline
+				%CUADRANTE ABAJO IZQ
+				\color{blue}
+				\begin{array}{c c c}
+					* & \cdots & * \\ \hline
+						&        & \vphantom{-a_1}  \\
+						&    0   & \vphantom{\vdots}  \\
+						&        & \vphantom{-a_{m-1}}  
+				\end{array}
+				& 
+				%CUADRANTE ABAJO DCHA
+				\color{magenta}
+				\begin{array}{c c c|c}
+					0 & \cdots & 0 & -a_0 \\ \cline{1-3}
+						&        &   & -a_1 \\
+						&Id_{m-1}&   & \vdots \\
+						&        &   & -a_{m-1}
+				\end{array} 
+			\end{array}
+		\right)
+		%LLAVES
+		\begin{array}{@{\kern-\nulldelimiterspace}l@{}}
+		\left.
+			\begin{array}{@{}c@{}}
+				\vphantom{0}
+			\end{array}
+		\right\}n-m \\
+		\left.
+			\begin{array}{@{}c@{}}
+				\vphantom{-a_0} \\ 
+				\vphantom{-a_1} \\
+				\vphantom{\vdots} \\
+				\vphantom{-a_{m-1}}
+			\end{array}
+		\right\}m
+		\end{array}
+	\]
+\end{document}
